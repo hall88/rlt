@@ -8,6 +8,10 @@
 //		and a Raspberry Pi based controller to teach
 //		rhythmic structure in music.
 //
+//		It must deconstruct an array of strings into
+//		a lesson key and key press history.
+//		Afterwards, it evaluates and returns a grade.
+//
 
 // #include	...omitted
 // #define	...

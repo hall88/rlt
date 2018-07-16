@@ -1,3 +1,17 @@
+//		grader.cpp
+//
+//		Rhythmic Learning Tool
+//		Fall 2017
+//		Kenneth Hall
+//
+//		This program is part of a project that uses a web-app
+//		and a Raspberry Pi based controller to teach
+//		rhythmic structure in music.
+//
+
+// #include	...omitted
+// #define	...
+
 #include <stdio.h>
 #include <cassert>
 
@@ -14,9 +28,12 @@
 long long int key[KEY_SIZE][KEY_NUM_COLUMNS];
 long long int history[LARGE_NUMBER][HISTORY_NUM_COLUMNS];
 
+//	debugging key formatting:
+//	[button number]	[note length]	[low start time][high start time]	[low stop time]	[high stop time]
+//	[0]				[1]				[419871]		[519871]			[619871]		[719871]		key pressed
+//	[0]				[1]				[790000]		[810000]			[840000]		[850000]		key released
 /*
-*	print 64 rows of key
-*	[button number][note length][low start time][high start time][low stop time][high stop time]
+*	print 64 rows of key	
 *	time is in milliseconds
 */
 void printKey() {
@@ -31,6 +48,9 @@ void printKey() {
 	printf("\n");
 }
 
+//	history formatting:
+//	[button number][time button pressed][time button released]
+//	[...]
 /*
 *	print (argc - 65) / 3 rows of history
 *	[button number][time button pressed][time button released]
@@ -48,6 +68,7 @@ void printHistory(int size) {
 	printf("\n");
 }
 
+/* format and store a lesson key into global: key */
 void parseKey(char* argv[], int bpm) {
 	long long int DELTA = ((DELTA_BASE * 60) / 2) / bpm;
 	long long int spb = MU_S * 60 / bpm;
@@ -83,6 +104,7 @@ long long int atoi(char* a[], int b) {
 	}
 }
 
+/* format and store a lesson key into global: history */
 void parseHistory(char* key[], int asize) {
 	for (size_t i = 0; i < LARGE_NUMBER; i++) {
 		for (size_t j = 0; j < HISTORY_NUM_COLUMNS; j++) {
@@ -122,6 +144,16 @@ void parseHistory(char* key[], int asize) {
 	}
 }
 
+
+//	main parameter formatting:
+//
+//	argc = array length
+//
+//	argv is a array of strings
+//	[64 #s indicating duration(0 - 4 only),
+//	bpm,
+//	{(pi button, up / down, time pressed in microsec), (repeated for all recorded events), ...}]
+//
 /*
 *	argc = array length
 *	argv is a array of strings = [64 #s indicating duration(0-4 only) | bpm | {(pi button, up/down, time pressed in microsec), (repeated for all recorded events), ...}]
@@ -129,6 +161,9 @@ void parseHistory(char* key[], int asize) {
 *	"history" is pi recorded presses
 */
 extern "C" int main(int argc, char **argv) {
+
+	// check arguments for valid formatting
+
 	printf("argv: \n");
 	for (size_t i = 0; i < argc; i++) {
 		printf("%d: %lld\n", i, atoi(argv, i));
@@ -165,6 +200,11 @@ extern "C" int main(int argc, char **argv) {
 
 	parseHistory(argv, argc);
 	printHistory(HISTORY_SIZE);
+
+	//	grade
+	//
+	//	compare all entries in HISTORY_SIZE against KEY_SIZE
+	//	check press and releases times are w/i limits
 
 	float correct = 0.0;
 	for (size_t i = 0; i < HISTORY_SIZE; i++) {
